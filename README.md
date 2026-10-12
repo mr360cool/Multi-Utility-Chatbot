@@ -3,58 +3,37 @@
 A Streamlit chatbot with LangGraph, PDF question answering (RAG), web search,
 stock quotes, and a calculator.
 
+## UI preview
+
+<p align="center">
+  <img src="docs/images/chatbot-ui.png" alt="Multi-Utility Agentic Chatbot interface" width="900">
+</p>
+
 ## System architecture
 
 ```mermaid
 flowchart TD
-    User[User] -->|message or quick action| UI[Streamlit frontend]
-    UI -->|HumanMessage plus thread ID| Graph[LangGraph StateGraph]
-    UI -->|restore conversation by thread ID| DB[(SQLite checkpoint database)]
-    DB --> Graph
-
-    subgraph Turn["One chat turn"]
-        Graph --> Chat[Chat node: add instructions and conversation]
-        Chat --> Model[GPT-4o mini with bound tools]
-        Model --> Route{Tool call requested?}
-        Route -->|No: ordinary conversation or finished answer| Stream[Stream assistant text]
-        Route -->|Yes| ToolNode[LangGraph ToolNode]
-        ToolNode --> ToolChoice{Selected tool}
-        ToolChoice -->|Document question| RAG[rag_tool]
-        ToolChoice -->|Current web information| Web[web_search]
-        ToolChoice -->|Stock ticker| Stock[get_stock_price]
-        ToolChoice -->|Arithmetic| Calc[calculator]
-        RAG -->|retrieved evidence or no-index result| ToolResult[Tool result]
-        Web --> ToolResult
-        Stock --> ToolResult
-        Calc --> ToolResult
-        ToolResult -->|tool result added to conversation| Chat
-        Stream --> UI
-    end
-
-    UI -->|PDF uploaded for active thread| Parse[PyPDFLoader]
-    Parse --> Split[Split into 1000-character chunks<br/>200-character overlap]
-    Split --> Embed[OpenAI text-embedding-3-small]
-    Embed --> Index[(Per-thread FAISS index<br/>top 4 similarity results)]
-    Split --> Metadata[(Per-thread file metadata and chunk records)]
-    RAG -->|retrieve for the same thread| Index
-    RAG -->|filename and page citations| Chat
-    Metadata --> RAG
-
-    Web --> DDG[DuckDuckGo]
-    Stock --> AV[Alpha Vantage API]
-    Model --> OpenAI[OpenAI API]
-    Embed --> OpenAI
-
-    Graph -->|checkpoint messages and state| DB
-    UI -. optional tracing and feedback .-> LS[LangSmith]
+    User([User]) --> App[Streamlit Chat App]
+    App --> Agent[LangGraph AI Agent<br/>understands request and selects a tool]
+    Agent -->|general question| LLM[OpenAI]
+    Agent -->|document question| RAG[PDF RAG]
+    Agent -->|web or stock question| Live[Web Search / Stock Data]
+    Agent -->|calculation| Calc[Calculator]
+    RAG <--> Docs[(PDFs and FAISS index)]
+    Live --> Services[DuckDuckGo / Alpha Vantage]
+    LLM --> Agent
+    RAG --> Agent
+    Services --> Live
+    Calc --> Agent
+    Agent -->|final answer| App
+    App <--> Memory[(SQLite chat memory)]
+    App -. hosted on .-> Deploy[Docker or Streamlit Cloud]
 ```
 
-The model chooses whether a message needs a tool; the app does not route user
-prompts with keyword rules. When it requests a tool, LangGraph runs that tool,
-adds its result to the same conversation, and calls the chat node again. This
-tool cycle can repeat until the model returns a final answer, which the
-frontend streams to the user. A thread ID ties messages, checkpoints, uploaded
-documents, and retrieved context to a conversation.
+**In short:** the user sends a message in the chat; the AI agent answers
+directly or uses the matching capability (PDF retrieval, web/stock lookup, or
+calculation); then the app returns the answer and saves the conversation.
+Uploaded PDFs are indexed for later questions in that chat.
 
 ## Technical highlights
 
