@@ -42,6 +42,10 @@ from final_backend import (
 )
 
 
+def _escape_math_expression(expression: str) -> str:
+    return expression.replace("%", r"\%").strip()
+
+
 def format_message_content(content: str) -> str:
     """
     Format LaTeX and mathematical expressions into Streamlit KaTeX-compatible
@@ -53,7 +57,7 @@ def format_message_content(content: str) -> str:
     # 1. Convert \[ ... \] into $$ ... $$
     content = re.sub(
         r"\\\[(.*?)\\\]",
-        lambda m: f"\n\n$$\n{m.group(1).replace('%', r'\%').strip()}\n$$\n\n",
+        lambda m: f"\n\n$$\n{_escape_math_expression(m.group(1))}\n$$\n\n",
         content,
         flags=re.DOTALL,
     )
@@ -61,7 +65,7 @@ def format_message_content(content: str) -> str:
     # 2. Convert \( ... \) into $ ... $
     content = re.sub(
         r"\\\((.*?)\\\)",
-        lambda m: f" ${m.group(1).replace('%', r'\%').strip()}$ ",
+        lambda m: f" ${_escape_math_expression(m.group(1))}$ ",
         content,
         flags=re.DOTALL,
     )
@@ -69,7 +73,7 @@ def format_message_content(content: str) -> str:
     # 3. Handle bracket equations like [ \text{...} ] or [ ... = ... ] containing LaTeX commands
     content = re.sub(
         r"(?<!\w)\[\s*(\\text\{.*?\}.*?|.*?\\frac\{.*?|.*?\\left\(.*?|.*?\\cdot.*?)\s*\]",
-        lambda m: f"\n\n$$\n{m.group(1).replace('%', r'\%').strip()}\n$$\n\n",
+        lambda m: f"\n\n$$\n{_escape_math_expression(m.group(1))}\n$$\n\n",
         content,
         flags=re.DOTALL,
     )
@@ -420,7 +424,7 @@ else:
 
 # ============================ Main Layout ========================
 st.title("Multi-Utility Agentic Chatbot")
-st.caption("Powered by hybrid tools (Web Search, Live Events, Precision Calculator), ")
+st.caption("Powered by hybrid tools (Web Search, Live Events, Precision Calculator) ")
 
 # Quick-Prompt Suggestions
 if not st.session_state["message_history"]:
