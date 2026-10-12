@@ -10,7 +10,7 @@ langchain-mcp-adapters>=0.3.0
 
 # LLM Providers
 langchain-openai>=1.6.0
-openai>=3.20.0
+openai>=3.3.0,<3.4.0
 langchain-google-genai>=4.4.0
 langchain-huggingface>=1.2.0
 
