@@ -35,37 +35,80 @@ directly or uses the matching capability (PDF retrieval, web/stock lookup, or
 calculation); then the app returns the answer and saves the conversation.
 Uploaded PDFs are indexed for later questions in that chat.
 
-## Technical highlights
+## 🌟 Key Technical Highlights
 
-- **Agent orchestration:** LangGraph maintains a message-based state graph.
-  `tools_condition` routes model responses either to the tool node or to the
-  end of the turn; tool results flow back through the chat node.
-- **Conversation memory:** `SqliteSaver` checkpoints graph state in
-  `chatbot.db`, keyed by the conversation's thread ID, so prior messages can be
-  restored for later turns.
-- **Document Q&A (RAG):** PDF uploads are parsed into page-aware documents,
-  split into 1,000-character chunks with 200-character overlap, and indexed
-  with FAISS using OpenAI `text-embedding-3-small` embeddings. The retriever
-  returns up to four similar chunks. Answers are instructed to cite filenames
-  and page numbers and to say when evidence is insufficient.
-- **Thread-scoped documents:** Each conversation has its own vector index and
-  document metadata. SHA-256 file hashes support duplicate detection, while
-  thread IDs are validated before being used in storage paths.
-- **Specialized tools:** DuckDuckGo provides web search; Alpha Vantage provides
-  ticker quotes (with bounded retries and rate-limit/error handling); and the
-  calculator performs addition, subtraction, multiplication, and division,
-  including a division-by-zero guard.
-- **Streaming UI:** Streamlit renders assistant text as it arrives and shows a
-  status when a tool runs. The sidebar supports PDF upload/removal, chat
-  history, and thread switching.
-- **Configuration and observability:** API keys are read from environment
-  variables; on Community Cloud, Streamlit Secrets are copied into the
-  environment before backend initialization. LangSmith tracing and response
-  feedback are optional.
-- **Deployment and persistence:** Docker Compose stores SQLite checkpoints and
-  FAISS indexes in named volumes. Streamlit Community Cloud's local filesystem
-  is temporary, so chat and uploaded-document data are not guaranteed to
-  persist across restarts.
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#-key-technical-highlights)
+
+### 1. Agentic Tool Selection
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#1-agentic-tool-selection)
+
+- Uses a LangGraph message-state workflow with an OpenAI `gpt-4o-mini` model
+  bound to the available tools.
+- The model decides whether to answer directly or request document retrieval,
+  web search, a stock quote, or a calculation.
+- LangGraph routes tool calls to the tool node and feeds each result back to
+  the model, which can then produce the final response.
+
+### 2. PDF Ingestion and Retrieval-Augmented Generation
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#2-pdf-ingestion-and-retrieval-augmented-generation)
+
+- Parses uploaded PDFs into page-aware documents, then splits them into
+  1,000-character chunks with 200-character overlap.
+- Creates embeddings with OpenAI `text-embedding-3-small` and stores vectors
+  in a FAISS index dedicated to the conversation.
+- Retrieves up to four relevant chunks for document questions.
+
+### 3. Evidence-Grounded Document Answers
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#3-evidence-grounded-document-answers)
+
+- Instructs the model to cite document claims using `[Filename, Page X]`.
+- Requires the model to say when uploaded documents do not contain enough
+  evidence, rather than inventing an answer.
+- Tracks each indexed file's name, hash, page count, and chunk count for the
+  active conversation.
+
+### 4. Multi-Utility Tools
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#4-multi-utility-tools)
+
+- **Web search:** DuckDuckGo search for public and current information.
+- **Stock quotes:** Alpha Vantage ticker lookup with bounded network retries
+  and rate-limit/error handling.
+- **Calculator:** Addition, subtraction, multiplication, and division, with a
+  guard against division by zero.
+
+### 5. Per-Conversation State and Document Isolation
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#5-per-conversation-state-and-document-isolation)
+
+- Stores LangGraph conversation checkpoints in SQLite using a conversation
+  thread ID.
+- Maintains a separate FAISS index and uploaded-document metadata for each
+  thread, so retrieval uses that conversation's documents.
+- Validates thread IDs before using them to construct vectorstore paths.
+
+### 6. Streaming Chat Interface
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#6-streaming-chat-interface)
+
+- Streams assistant responses in the Streamlit UI and shows status while a
+  tool is running.
+- Provides quick-action prompts, PDF upload and removal, conversation search,
+  and thread switching in the sidebar.
+
+### 7. Deployment and Optional Observability
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#7-deployment-and-optional-observability)
+
+- Runs locally or with Docker Compose; Docker named volumes persist local
+  SQLite chat data and FAISS indexes across container recreations.
+- Supports Streamlit Community Cloud Secrets for API keys and optional
+  LangSmith tracing and response feedback.
+- Community Cloud's local filesystem is temporary, so chat and uploaded
+  documents are not guaranteed to persist across app restarts.
 
 ## Requirements
 
