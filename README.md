@@ -73,61 +73,84 @@ Uploaded PDFs are indexed for later questions in that chat.
 - An OpenAI API key
 - Docker Desktop (for the containerized version)
 
-## Run locally with Python
+## ⚡ Quickstart
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#-quickstart)
 
-   ```powershell
-   python -m pip install -r requirements.txt
-   ```
+### 1. Clone & Set Up Environment
 
-3. Copy `.env.example` to `.env` and enter your API keys. `OPENAI_API_KEY` is
-   required for chat and document embeddings. `ALPHA_VANTAGE_API_KEY` enables
-   stock quotes. LangSmith settings are optional.
-4. Start the app:
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#1-clone--set-up-environment)
 
-   ```powershell
-   streamlit run final_frontend.py
-   ```
+```bash
+git clone https://github.com/mr360cool/Multi-Utility-Chatbot.git
+cd Multi-Utility-Chatbot
 
-## Run with Docker Desktop
+python -m venv myenv
+# Windows:
+myenv\Scripts\activate
+# Linux/macOS:
+source myenv/bin/activate
 
-1. Copy `.env.example` to `.env` and set the keys you want to use.
-2. In the project directory, build and start the app:
+pip install -r requirements.txt
+```
 
-   ```powershell
-   docker compose up --build
-   ```
+### 2. Configure Environment Variables
 
-3. Open <http://localhost:8501>.
-4. Stop the app with `Ctrl+C`; run `docker compose down` to remove the
-   container. Conversation data and vector indexes are stored in Docker named
-   volumes and remain available when the container is recreated.
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#2-configure-environment-variables)
 
-## Deploy on Streamlit Community Cloud
+Copy the example environment file and add your API keys:
 
-1. Push this repository to GitHub without committing `.env` or API keys.
-2. In Streamlit Community Cloud, create an app from the repository, select
-   `final_frontend.py` as the entry point, and deploy.
-3. In the app's **Settings → Secrets**, add the keys needed by the app using
-   TOML format:
+```bash
+# Windows PowerShell:
+Copy-Item .env.example .env
+# Linux/macOS:
+cp .env.example .env
+```
 
-   ```toml
-   OPENAI_API_KEY = "your-openai-api-key"
-   ALPHA_VANTAGE_API_KEY = "your-alpha-vantage-api-key"
-   LANGSMITH_TRACING = "true"
-   LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
-   LANGSMITH_API_KEY = "your-langsmith-api-key"
-   LANGSMITH_PROJECT = "multi-utility-agentic-rag"
-   ```
+Edit `.env`:
 
-   Only `OPENAI_API_KEY` is required. Omit optional keys if you do not use those
-   services. Streamlit Secrets are loaded into the environment before the
-   backend and LangSmith client are initialized.
-4. Wait for the app to finish building. Streamlit Community Cloud will provide
-   its shareable `*.streamlit.app` URL.
+```dotenv
+OPENAI_API_KEY=your-openai-api-key
 
-Community Cloud's local filesystem is not durable storage. Conversation and
-uploaded-document data may be lost when the app restarts or is redeployed.
-Docker Compose, by contrast, keeps this data in local Docker named volumes.
+# Optional: enables stock quote lookups
+ALPHA_VANTAGE_API_KEY=your-alpha-vantage-api-key
+
+# Optional: LangSmith tracing
+LANGSMITH_TRACING=false
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_API_KEY=your-langsmith-api-key
+LANGSMITH_PROJECT=multi-utility-agentic-rag
+```
+
+`OPENAI_API_KEY` is required for chat and PDF embeddings. Never commit `.env`
+or put real API keys in the repository.
+
+### 3. Start the app
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#3-start-the-app)
+
+Run locally:
+
+```bash
+streamlit run final_frontend.py
+```
+
+Or start with Docker Desktop:
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8501>.
+
+## 🛠️ Tech Stack
+
+[](https://github.com/mr360cool/Multi-Utility-Chatbot#-tech-stack)
+
+- **Frameworks:** Python, Streamlit, LangChain, LangGraph
+- **LLM & Embeddings:** OpenAI (`gpt-4o-mini`, `text-embedding-3-small`)
+- **Document RAG:** PyPDF, FAISS, LangChain text splitters
+- **Tools:** DuckDuckGo web search, Alpha Vantage stock quotes, arithmetic calculator
+- **State & Storage:** SQLite checkpoints, per-conversation FAISS indexes
+- **Observability:** Optional LangSmith tracing and response feedback
+- **Deployment:** Docker Compose and Streamlit Community Cloud
