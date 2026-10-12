@@ -116,7 +116,7 @@ OPENAI_API_KEY=your-openai-api-key
 ALPHA_VANTAGE_API_KEY=your-alpha-vantage-api-key
 
 # Optional: LangSmith tracing
-LANGSMITH_TRACING=false
+LANGSMITH_TRACING=true
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 LANGSMITH_API_KEY=your-langsmith-api-key
 LANGSMITH_PROJECT=multi-utility-agentic-rag
