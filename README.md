@@ -122,26 +122,16 @@ LANGSMITH_API_KEY=your-langsmith-api-key
 LANGSMITH_PROJECT=multi-utility-agentic-rag
 ```
 
-`OPENAI_API_KEY` is required for chat and PDF embeddings. Never commit `.env`
-or put real API keys in the repository.
+`OPENAI_API_KEY` is required for chat and PDF embeddings.
 
 ### 3. Start the app
 
 [](https://github.com/mr360cool/Multi-Utility-Chatbot#3-start-the-app)
 
-Run locally:
 
 ```bash
 streamlit run final_frontend.py
 ```
-
-Or start with Docker Desktop:
-
-```bash
-docker compose up --build
-```
-
-Open <http://localhost:8501>.
 
 ## 🛠️ Tech Stack
 
