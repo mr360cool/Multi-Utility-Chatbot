@@ -1,0 +1,21 @@
+services:
+  agent-chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentic-rag-chatbot
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - vectorstores:/app/vectorstores
+      - chatbot-data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CHATBOT_DB_PATH=/app/data/chatbot.db
+
+volumes:
+  vectorstores:
+  chatbot-data:

@@ -1,0 +1,33 @@
+# LangChain & LangGraph State Machine
+langchain>=1.4.0
+langchain-core>=1.6.0
+# RAGAS 0.4.x imports the Vertex AI integration from this pre-0.4 module path.
+langchain-community>=0.3.31,<0.4
+langchain-text-splitters>=1.1.0
+langgraph>=1.2.0
+langgraph-checkpoint-sqlite>=3.1.0
+langchain-mcp-adapters>=0.3.0
+
+# LLM Providers
+langchain-openai>=1.6.0
+openai>=3.20.0
+langchain-google-genai>=4.4.0
+langchain-huggingface>=1.2.0
+
+# Vectorstore & Document Processing
+faiss-cpu>=1.15.0
+pypdf>=6.19.0
+
+# Frontend & Web
+streamlit>=1.40.0
+requests>=2.32.0
+
+# Observability
+langsmith>=0.14.0
+
+# RAG evaluation
+ragas>=0.4.0,<1.0
+
+# Quality Assurance & Testing
+pytest>=8.3.0
+python-dotenv>=1.2.0
