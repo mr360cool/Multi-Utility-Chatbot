@@ -3,6 +3,48 @@
 A Streamlit chatbot with LangGraph, PDF question answering (RAG), web search,
 stock quotes, and a calculator.
 
+## System architecture
+
+```mermaid
+flowchart TD
+    User[User's browser] --> UI[Streamlit UI<br/>final_frontend.py]
+    UI --> Graph[LangGraph chatbot<br/>final_backend.py]
+
+    subgraph Agent["LangGraph agent"]
+        Chat[Chat node] -->|tool call| Tools[Tool node]
+        Tools -->|tool result| Chat
+    end
+
+    Graph --> Agent
+    Chat <--> LLM[OpenAI chat model]
+    Graph <--> Checkpointer[SQLite checkpoint database<br/>chatbot.db]
+
+    UI -->|PDF upload| Ingest[PDF ingestion<br/>PyPDF + text splitter]
+    Ingest -->|create embeddings| Embeddings[OpenAI embeddings]
+    Ingest --> Index[FAISS vector index<br/>vectorstores/]
+    Tools -->|retrieve document context| Index
+
+    Tools -->|web search| Search[DuckDuckGo]
+    Tools -->|stock quote| Stocks[Alpha Vantage]
+    UI -. optional tracing .-> LangSmith[LangSmith]
+
+    subgraph Hosting["Run the same Streamlit app"]
+        Local[Local Python]
+        Docker[Docker Compose<br/>named data volumes]
+        Cloud[Streamlit Community Cloud<br/>Secrets for API keys]
+    end
+
+    Local -. runs .-> UI
+    Docker -. runs .-> UI
+    Cloud -. runs .-> UI
+```
+
+The agent calls tools when needed and returns their results to the chat node
+before composing a response. Docker Compose persists chat checkpoints and
+vector indexes in named volumes. Streamlit Community Cloud uses its configured
+Secrets for API keys, but its local filesystem is temporary, so chat and
+uploaded-document data are not guaranteed to persist across restarts.
+
 ## Requirements
 
 - Python 3.11 or later
