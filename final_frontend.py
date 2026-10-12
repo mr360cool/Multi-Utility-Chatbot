@@ -4,10 +4,16 @@ import os
 import re
 import uuid
 import streamlit as st
+from streamlit.errors import StreamlitSecretNotFoundError
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 load_dotenv()
+
+try:
+    _streamlit_secrets = st.secrets
+except StreamlitSecretNotFoundError:
+    _streamlit_secrets = {}
 
 for _secret_name in (
     "OPENAI_API_KEY",
@@ -17,8 +23,8 @@ for _secret_name in (
     "LANGSMITH_API_KEY",
     "LANGSMITH_PROJECT",
 ):
-    if _secret_name in st.secrets and not os.environ.get(_secret_name):
-        os.environ[_secret_name] = str(st.secrets[_secret_name])
+    if not os.environ.get(_secret_name) and _secret_name in _streamlit_secrets:
+        os.environ[_secret_name] = str(_streamlit_secrets[_secret_name])
 
 try:
     from langsmith import Client as LangSmithClient
