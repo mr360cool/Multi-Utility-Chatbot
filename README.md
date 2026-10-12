@@ -47,8 +47,6 @@ Uploaded PDFs are indexed for later questions in that chat.
   bound to the available tools.
 - The model decides whether to answer directly or request document retrieval,
   web search, a stock quote, or a calculation.
-- LangGraph routes tool calls to the tool node and feeds each result back to
-  the model, which can then produce the final response.
 
 ### 2. PDF Ingestion and Retrieval-Augmented Generation
 
@@ -67,8 +65,6 @@ Uploaded PDFs are indexed for later questions in that chat.
 - Instructs the model to cite document claims using `[Filename, Page X]`.
 - Requires the model to say when uploaded documents do not contain enough
   evidence, rather than inventing an answer.
-- Tracks each indexed file's name, hash, page count, and chunk count for the
-  active conversation.
 
 ### 4. Multi-Utility Tools
 
@@ -98,17 +94,6 @@ Uploaded PDFs are indexed for later questions in that chat.
   tool is running.
 - Provides quick-action prompts, PDF upload and removal, conversation search,
   and thread switching in the sidebar.
-
-### 7. Deployment and Optional Observability
-
-[](https://github.com/mr360cool/Multi-Utility-Chatbot#7-deployment-and-optional-observability)
-
-- Runs locally or with Docker Compose; Docker named volumes persist local
-  SQLite chat data and FAISS indexes across container recreations.
-- Supports Streamlit Community Cloud Secrets for API keys and optional
-  LangSmith tracing and response feedback.
-- Community Cloud's local filesystem is temporary, so chat and uploaded
-  documents are not guaranteed to persist across app restarts.
 
 ## Requirements
 
